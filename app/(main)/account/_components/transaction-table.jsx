@@ -29,6 +29,22 @@ const TransactionTable = ({ transactions }) => {
             direction: current.field === field && current.direction === 'asc' ? 'desc' : 'asc'
         }));    
     }
+    const handleSelect = (id) => {
+        setSelectedIds((current) => {
+            if (current.includes(id)) {
+                return current.filter((selectedId) => selectedId !== id);
+            } else {
+                return [...current, id];
+            }
+        });
+    }
+    const handleSelectAll = () => {
+        if (selectedIds.length === filteredAndSortedTransactions.length) {
+            setSelectedIds([]);
+        } else {
+            setSelectedIds(filteredAndSortedTransactions.map((transaction) => transaction.id));
+        }
+    }
     return (
         <div className='space-y-4'>
             {/* Filters */}
@@ -39,7 +55,7 @@ const TransactionTable = ({ transactions }) => {
                     <TableHeader>
                         <TableRow>
                             <TableHead className="w-[50px]">
-                                <Checkbox />
+                                <Checkbox checked={selectedIds.length === filteredAndSortedTransactions.length} onCheckedChange={handleSelectAll} />
                             </TableHead>
                             <TableHead onClick={() => handleSort('date')} className="cursor-pointer">
                                 <div className="flex items-center">
@@ -80,7 +96,7 @@ const TransactionTable = ({ transactions }) => {
                         </TableRow> : filteredAndSortedTransactions.map((transaction) => (
                             <TableRow key={transaction.id}>
                                 <TableCell>
-                                    <Checkbox />
+                                    <Checkbox checked={selectedIds.includes(transaction.id)} onCheckedChange={() => handleSelect(transaction.id)} />
                                 </TableCell>
                                 <TableCell>{format(new Date(transaction.date), "PP")}</TableCell>
                                 <TableCell>{transaction.description}</TableCell>
