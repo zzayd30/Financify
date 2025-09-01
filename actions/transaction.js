@@ -1,7 +1,9 @@
 "use server";
+import aj from "@/lib/arcjet";
 import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 
 const serializeAmount = (obj) => ({
     ...obj,
@@ -14,6 +16,45 @@ export async function createTransaction(data) {
         if (!userId) {
             throw new Error("User not authenticated");
         }
+
+        // Create a mock request object for server actions
+        const headersList = await headers();
+        const req = {
+            ip: headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || '127.0.0.1',
+            method: 'POST',
+            url: '/api/transaction',
+            headers: Object.fromEntries(headersList.entries())
+        };
+
+        try {
+            const decision = await aj.protect(req, {
+                userId,
+                requested: 1,
+            });
+
+            if (decision.isDenied()) {
+                if (decision.reason.isRateLimit()) {
+                    const { remaining, reset } = decision.reason;
+                    console.error({
+                        code: "RATE_LIMIT_EXCEEDED",
+                        details: {
+                            remaining,
+                            resetInSeconds: reset,
+                        }
+                    });
+                    throw new Error("Too many requests. Please try again later.");
+                }
+                throw new Error("Request blocked by security policy.");
+            }
+        } catch (arcjetError) {
+            // Only continue if it's an Arcjet service error, not a rate limit
+            if (arcjetError.message.includes("Too many requests")) {
+                throw arcjetError; // Re-throw rate limit errors to block the transaction
+            }
+            console.warn("Arcjet protection failed (service error):", arcjetError.message);
+            // Continue with the function only for service errors
+        }
+
         const user = await db.user.findUnique({
             where: { clerUserId: userId },
         });
