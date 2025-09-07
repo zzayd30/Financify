@@ -16,6 +16,7 @@ import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import ReceiptScanner from './reciept-scanner';
 
 const AddTransactionForm = ({ accounts, categories }) => {
     const router = useRouter();
@@ -57,8 +58,30 @@ const AddTransactionForm = ({ accounts, categories }) => {
         }
     }, [transactionResult, transactionLoading])
 
+    const handleScanComplete = (scannedData) => {
+        console.log("Scanned Data:", scannedData);
+        if (scannedData.amount) {
+            setValue("amount", scannedData.amount.toString());
+        }
+        if (scannedData.date) {
+            const parsedDate = new Date(scannedData.date);
+            if (!isNaN(parsedDate)) {
+                setValue("date", parsedDate);
+            }
+        }
+        if (scannedData.description) {
+            setValue("description", scannedData.description);
+        }
+        if (scannedData.category) {
+            setValue("category", scannedData.category);
+        }
+    }
+
     return (
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+
+            <ReceiptScanner onScanComplete={handleScanComplete} />
+
             <div className="space-y-2">
                 <label className='text-sm font-medium'>Type</label>
                 <Select onValueChange={(value) => setValue("type", value)} defaultValue={type}>
