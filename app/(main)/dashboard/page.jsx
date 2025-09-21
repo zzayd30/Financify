@@ -7,16 +7,31 @@ import AccountCard from './_components/account-card'
 import { getCurrentBudget } from '@/actions/budget'
 import BudgetProgress from './_components/budget-progress'
 import { DashboardOverview } from './_components/transaction-overview'
+import { redirect } from 'next/navigation'
 
 async function DashboardPage() {
-  const accounts = await getUserAccounts();
+  const accountsResponse = await getUserAccounts();
+
+  // Check if user authentication failed
+  if (!accountsResponse.success) {
+    redirect(accountsResponse.redirect || '/sign-in');
+  }
+
+  const accounts = accountsResponse.data;
   const defaultAccount = accounts?.find((account) => account.isDefault);
   let budgetData = null;
   if (defaultAccount) {
     budgetData = await getCurrentBudget(defaultAccount.id);
   }
 
-  const transactions = await getDashboardData();
+  const transactionsResponse = await getDashboardData();
+
+  // Check if user authentication failed for transactions
+  if (!transactionsResponse.success) {
+    redirect(transactionsResponse.redirect || '/sign-in');
+  }
+
+  const transactions = transactionsResponse.data;
 
   return (
     <div className='space-y-8'>
@@ -26,9 +41,9 @@ async function DashboardPage() {
 
       {/* Dashboard Overview */}
 
-    <Suspense fallback={"loading Overview..."}>
-      <DashboardOverview accounts={accounts} transactions={transactions || []} />
-    </Suspense>
+      <Suspense fallback={"loading Overview..."}>
+        <DashboardOverview accounts={accounts} transactions={transactions || []} />
+      </Suspense>
 
       {/* Account Grid */}
       <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>

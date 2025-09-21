@@ -10,11 +10,11 @@ import {
 // Stats Data
 export const statsData = [
   {
-    value: "50K+",
+    value: "1K+",
     label: "Active Users",
   },
   {
-    value: "$2B+",
+    value: "$2K+",
     label: "Transactions Tracked",
   },
   {
@@ -22,7 +22,7 @@ export const statsData = [
     label: "Uptime",
   },
   {
-    value: "4.9/5",
+    value: "4.5/5",
     label: "User Rating",
   },
 ];
@@ -53,8 +53,8 @@ export const featuresData = [
   },
   {
     icon: <Globe className="h-8 w-8 text-blue-600" />,
-    title: "Multi-Currency",
-    description: "Support for multiple currencies with real-time conversion",
+    title: "Bot Protection",
+    description: "Secure your account with advanced bot protection mechanisms",
   },
   {
     icon: <Zap className="h-8 w-8 text-blue-600" />,

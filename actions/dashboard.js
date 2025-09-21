@@ -19,14 +19,14 @@ export async function createAccount(data) {
     try {
         const { userId } = await auth();
         if (!userId) {
-            throw new Error("User not authenticated");
+            return { success: false, error: "User not authenticated", redirect: "/sign-in" };
         }
         const user = await db.user.findUnique({
             where: { clerUserId: userId },
         });
 
         if (!user) {
-            throw new Error("User not found");
+            return { success: false, error: "User not found", redirect: "/sign-in" };
         }
 
         const balanceFloat = parseFloat(data.balance);
@@ -71,14 +71,14 @@ export async function createAccount(data) {
 export async function getUserAccounts() {
     const { userId } = await auth();
     if (!userId) {
-        throw new Error("User not authenticated");
+        return { success: false, error: "User not authenticated", redirect: "/sign-in" };
     }
     const user = await db.user.findUnique({
         where: { clerUserId: userId },
     });
 
     if (!user) {
-        throw new Error("User not found");
+        return { success: false, error: "User not found", redirect: "/sign-in" };
     }
 
     const accounts = await db.account.findMany({
@@ -93,19 +93,21 @@ export async function getUserAccounts() {
 
     const serializedAccount = accounts.map(serializeTransaction);
 
-    return serializedAccount;
+    return { success: true, data: serializedAccount };
 }
 
 export async function getDashboardData() {
     const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
+    if (!userId) {
+        return { success: false, error: "User not authenticated", redirect: "/sign-in" };
+    }
 
     const user = await db.user.findUnique({
         where: { clerUserId: userId },
     });
 
     if (!user) {
-        throw new Error("User not found");
+        return { success: false, error: "User not found", redirect: "/sign-in" };
     }
 
     const transactions = await db.transaction.findMany({
@@ -113,5 +115,5 @@ export async function getDashboardData() {
         orderBy: { date: "desc" },
     });
 
-    return transactions.map(serializeTransaction);
+    return { success: true, data: transactions.map(serializeTransaction) };
 }

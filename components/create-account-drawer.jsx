@@ -18,9 +18,12 @@ import { toast } from "sonner";
 import useFetch from '@/hooks/use-fetch';
 import { createAccount } from '@/actions/dashboard';
 import { Loader2 } from 'lucide-react';
+import { useAuthAction } from '@/hooks/use-auth-action';
 
 const CreateAccountDrawer = ({ children }) => {
     const [open, setOpen] = useState(false);
+    const { handleResponse } = useAuthAction();
+
     const { register, handleSubmit, formState: { errors }, setValue, watch, reset } = useForm({
         resolver: zodResolver(accountSchema),
         defaultValues: {
@@ -35,11 +38,21 @@ const CreateAccountDrawer = ({ children }) => {
 
     useEffect(() => {
         if (newAccount && !createAccountLoading) {
-            toast.success("Account created successfully!");
-            reset();
-            setOpen(false);
+            // Check if the response indicates authentication failure
+            if (!handleResponse(newAccount)) {
+                return; // Redirect happened, stop processing
+            }
+
+            // Success case
+            if (newAccount.success) {
+                toast.success("Account created successfully!");
+                reset();
+                setOpen(false);
+            } else {
+                toast.error(newAccount.error || "Failed to create account");
+            }
         }
-    }, [newAccount, createAccountLoading, reset]);
+    }, [newAccount, createAccountLoading, reset, handleResponse]);
 
     const onsubmit = async (data) => {
         await createAccountFn(data);
