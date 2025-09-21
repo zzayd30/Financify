@@ -23,7 +23,7 @@ const Header_F = async () => {
   return (
     <div className="fixed top-0 w-full bg-white/80 backdrop-blur-md z-50 border-b">
       <nav className="container mx-auto py-4 flex items-center justify-between">
-        <Link href="/" className="text-2xl pl-4 font-bold">
+        <Link href="/" className="text-2xl pl-4 font-bold flex items-center gap-2">
           <Image
             src={"/logo.png"}
             alt="Financify Logo"
@@ -31,6 +31,7 @@ const Header_F = async () => {
             height={60}
             className="h-12 w-auto object-contain"
           />
+          <span>Financify</span>
         </Link>
 
         <div className="flex items-center pr-4 space-x-4">
