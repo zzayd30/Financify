@@ -17,6 +17,7 @@ import { auth } from "@clerk/nextjs/server";
 const Header_F = async () => {
   const { userId } = await auth();
   if (userId) {
+    console.log("User ID from auth():", userId);
     await checkUser();
   }
 

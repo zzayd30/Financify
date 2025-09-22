@@ -19,7 +19,7 @@ model User {
   id          String        @id @default(uuid())
   clerUserId  String        @unique
   email       String        @unique
-  name        String?       @unique
+  name        String?
   imageUrl    String?
   transaction Transaction[]
   accounts    Account[]
