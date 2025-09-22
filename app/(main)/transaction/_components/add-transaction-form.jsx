@@ -40,7 +40,7 @@ export function AddTransactionForm({
     const router = useRouter();
     const searchParams = useSearchParams();
     const editId = searchParams.get("edit");
-
+    console.log("Accounts:",accounts.data)
     const {
         register,
         handleSubmit,
@@ -69,7 +69,8 @@ export function AddTransactionForm({
                     type: "EXPENSE",
                     amount: "",
                     description: "",
-                    accountId: accounts.find((ac) => ac.isDefault)?.id,
+                    // accountId: accounts.find((ac) => ac.isDefault)?.id,
+                    accountId: Array.isArray(accounts) ? accounts.find((ac) => ac.isDefault)?.id : "",
                     date: new Date(),
                     isRecurring: false,
                 },
@@ -177,7 +178,7 @@ export function AddTransactionForm({
                             <SelectValue placeholder="Select account" />
                         </SelectTrigger>
                         <SelectContent>
-                            {accounts.map((account) => (
+                            {Array.isArray(accounts.data) && accounts.data.map((account) => (
                                 <SelectItem key={account.id} value={account.id}>
                                     {account.name} (${parseFloat(account.balance).toFixed(2)})
                                 </SelectItem>
